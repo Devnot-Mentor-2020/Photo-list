@@ -15,7 +15,7 @@ class _PhotoListPageState extends State<PhotoListPage> {
     var response = await http.get(_url);
     if(response.statusCode==200){
       var decodedJson= jsonDecode(response.body) as List;
-      List<Photo> photoList = decodedJson.map((j) => Photo.fromJson(j)).toList();
+      List<Photo> photoList = decodedJson.map((jsonMap) => Photo.fromJson(jsonMap)).toList();
       return photoList;
     }
     else{
