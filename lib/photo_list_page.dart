@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'model/photo.dart';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class PhotoListPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class _PhotoListPageState extends State<PhotoListPage> {
 
   Future<List<Photo>> _fetchPhotos() async {
     var response = await http.get(_url);
-    if(response.statusCode==200){
+    if(response.statusCode==HttpStatus.ok){
       var decodedJson= jsonDecode(response.body) as List;
       List<Photo> photoList = decodedJson.map((jsonMap) => Photo.fromJson(jsonMap)).toList();
       return photoList;
@@ -34,11 +35,19 @@ class _PhotoListPageState extends State<PhotoListPage> {
   FutureBuilder<List<Photo>> buildFutureBuilder() {
     return FutureBuilder(future: _fetchPhotos(),//whatever returs from this function, will be avaliable inside snapshot paremeter.
         builder: (context, AsyncSnapshot<List<Photo>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator(),);
-          }
-          else{
-            return photoListView(snapshot);
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:{
+               return Center(child: CircularProgressIndicator(),) ;
+            }
+            case ConnectionState.done:{
+              if(snapshot.hasData){
+                return photoListView(snapshot);
+              }
+              break;
+            }
+            default:{
+              break;
+            }
           }
         });
   }
